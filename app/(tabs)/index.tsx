@@ -17,7 +17,10 @@ import {
   sendEmergencyAlert,
   getContacts,
   cancelAlert,
+  EmergencyAlert,
 } from "@/services/emergencyService";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "@/config/firebase";
 
 type AlertState = "idle" | "countdown" | "sending" | "sent" | "error";
 
@@ -28,6 +31,7 @@ export default function HomeScreen() {
   const [countdown, setCountdown] = useState(5);
   const [shakeEnabled, setShakeEnabled] = useState(true);
   const [currentAlertId, setCurrentAlertId] = useState<string | null>(null);
+  const [liveAlertData, setLiveAlertData] = useState<EmergencyAlert | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const userRef = useRef(user);
   const getLocationRef = useRef(getCurrentLocation);
@@ -35,6 +39,28 @@ export default function HomeScreen() {
   // Keep refs in sync
   useEffect(() => { userRef.current = user; }, [user]);
   useEffect(() => { getLocationRef.current = getCurrentLocation; }, [getCurrentLocation]);
+
+  // Real-time listener for current alert status (so user sees acknowledge/resolve live)
+  useEffect(() => {
+    if (!currentAlertId || alertState !== "sent") {
+      setLiveAlertData(null);
+      return;
+    }
+
+    const unsubscribe = onSnapshot(
+      doc(db, "emergencyAlerts", currentAlertId),
+      (snapshot) => {
+        if (snapshot.exists()) {
+          setLiveAlertData({ id: snapshot.id, ...snapshot.data() } as EmergencyAlert);
+        }
+      },
+      (err) => {
+        console.warn("Alert listener error:", err);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [currentAlertId, alertState]);
 
   // Pulse animation for the shake button
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -137,6 +163,7 @@ export default function HomeScreen() {
     }
     setAlertState("idle");
     setCurrentAlertId(null);
+    setLiveAlertData(null);
     setCountdown(5);
   };
 
@@ -305,12 +332,44 @@ export default function HomeScreen() {
           <Animated.View
             style={[styles.sentArea, { transform: [{ scale: alertPulse }] }]}
           >
-            <MaterialIcons name="check-circle" size={64} color="#27ae60" />
-            <Text style={styles.sentTitle}>ALERT SENT!</Text>
-            <Text style={styles.sentSubtext}>
-              Emergency response team has been notified with your GPS location.
-            </Text>
+            {liveAlertData?.status === "resolved" ? (
+              <>
+                <MaterialIcons name="verified-user" size={64} color="#27ae60" />
+                <Text style={styles.sentTitle}>EMERGENCY RESOLVED</Text>
+                <Text style={styles.sentSubtext}>
+                  {liveAlertData.responderNote || "Emergency has been resolved. Stay safe."}
+                </Text>
+              </>
+            ) : liveAlertData?.status === "acknowledged" ? (
+              <>
+                <MaterialIcons name="local-hospital" size={64} color="#3498db" />
+                <Text style={[styles.sentTitle, { color: "#3498db" }]}>HELP IS ON THE WAY!</Text>
+                <Text style={styles.sentSubtext}>
+                  {liveAlertData.responderNote || "A responder has acknowledged your alert."}
+                </Text>
+              </>
+            ) : (
+              <>
+                <MaterialIcons name="check-circle" size={64} color="#27ae60" />
+                <Text style={styles.sentTitle}>ALERT SENT!</Text>
+                <Text style={styles.sentSubtext}>
+                  Emergency response team has been notified with your GPS location.
+                </Text>
+              </>
+            )}
           </Animated.View>
+
+          {/* Responder info card */}
+          {liveAlertData?.responderName && (
+            <View style={styles.responderCard}>
+              <MaterialIcons name="assignment-ind" size={22} color="#3498db" />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.responderCardTitle}>Responder Assigned</Text>
+                <Text style={styles.responderCardName}>{liveAlertData.responderName}</Text>
+              </View>
+              <MaterialIcons name="check-circle" size={20} color="#27ae60" />
+            </View>
+          )}
 
           {/* Live flow indicator */}
           <View style={styles.liveFlow}>
@@ -327,16 +386,54 @@ export default function HomeScreen() {
             </View>
             <View style={styles.liveFlowLine} />
             <View style={styles.liveFlowStep}>
-              <View style={[styles.liveFlowDot, { backgroundColor: "#e67e22" }]} />
-              <Text style={styles.liveFlowText}>Awaiting Response Team...</Text>
-              <MaterialIcons name="hourglass-top" size={16} color="#e67e22" />
+              <View style={[styles.liveFlowDot, {
+                backgroundColor: liveAlertData?.status === "acknowledged" || liveAlertData?.status === "resolved"
+                  ? "#27ae60" : "#e67e22"
+              }]} />
+              <Text style={styles.liveFlowText}>
+                {liveAlertData?.status === "acknowledged" || liveAlertData?.status === "resolved"
+                  ? "Responder Acknowledged" : "Awaiting Response Team..."}
+              </Text>
+              {liveAlertData?.status === "acknowledged" || liveAlertData?.status === "resolved" ? (
+                <MaterialIcons name="check" size={16} color="#27ae60" />
+              ) : (
+                <MaterialIcons name="hourglass-top" size={16} color="#e67e22" />
+              )}
             </View>
+            {(liveAlertData?.status === "acknowledged" || liveAlertData?.status === "resolved") && (
+              <>
+                <View style={styles.liveFlowLine} />
+                <View style={styles.liveFlowStep}>
+                  <View style={[styles.liveFlowDot, {
+                    backgroundColor: liveAlertData?.status === "resolved" ? "#27ae60" : "#e67e22"
+                  }]} />
+                  <Text style={styles.liveFlowText}>
+                    {liveAlertData?.status === "resolved" ? "Emergency Resolved" : "Help is on the way..."}
+                  </Text>
+                  {liveAlertData?.status === "resolved" ? (
+                    <MaterialIcons name="check" size={16} color="#27ae60" />
+                  ) : (
+                    <MaterialIcons name="local-hospital" size={16} color="#3498db" />
+                  )}
+                </View>
+              </>
+            )}
           </View>
 
-          <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-            <MaterialIcons name="close" size={20} color="#fff" />
-            <Text style={styles.cancelButtonText}>Cancel Alert</Text>
-          </TouchableOpacity>
+          {liveAlertData?.status === "resolved" ? (
+            <TouchableOpacity
+              style={[styles.cancelButton, { backgroundColor: "#27ae60" }]}
+              onPress={handleCancel}
+            >
+              <MaterialIcons name="check" size={20} color="#fff" />
+              <Text style={styles.cancelButtonText}>Done — Back to Home</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+              <MaterialIcons name="close" size={20} color="#fff" />
+              <Text style={styles.cancelButtonText}>Cancel Alert</Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 
@@ -416,6 +513,22 @@ const styles = StyleSheet.create({
   sentArea: { alignItems: "center", gap: 8, marginBottom: 20 },
   sentTitle: { fontSize: 24, fontWeight: "800", color: "#27ae60" },
   sentSubtext: { fontSize: 14, color: "#666", textAlign: "center", maxWidth: 280 },
+
+  // Responder card
+  responderCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    backgroundColor: "#e8f4fd",
+    borderRadius: 12,
+    padding: 14,
+    width: "100%",
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#bee0f7",
+  },
+  responderCardTitle: { fontSize: 11, color: "#888", fontWeight: "600" },
+  responderCardName: { fontSize: 16, fontWeight: "700", color: "#2980b9", marginTop: 2 },
 
   // Live flow
   liveFlow: {

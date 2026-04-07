@@ -92,12 +92,12 @@ Go to **Firebase Console** → Firestore Database → Indexes tab → Add Index:
 1. On the login screen, tap **"Emergency Responder? Sign in here"** at the bottom
 2. Tap the **Register** tab
 3. Fill in name, email, password
-4. Enter the **Team Access Code**: `RESCUE2024`
+4. Enter the **Team Access Code**: `SHAKE2SAVE`
 5. Tap **Create Responder Account**
 
 > **To change the team access code:** Edit `app/(auth)/responder-login.tsx` and change the value of `RESPONDER_CODE` on this line:
 > ```ts
-> const RESPONDER_CODE = "RESCUE2024";
+> const RESPONDER_CODE = "SHAKE2SAVE";
 > ```
 
 ### How It Works
@@ -110,7 +110,7 @@ Go to **Firebase Console** → Firestore Database → Indexes tab → Add Index:
 
 ## Testing the Full Flow
 
-1. **Create a responder account** on one device (use the team code `RESCUE2024`)
+1. **Create a responder account** on one device (use the team code `SHAKE2SAVE`)
 2. **Create a regular user account** on another device
 3. On the user device, **shake or tap the emergency button**
 4. On the responder device, the alert should appear **instantly** with a vibration alarm
