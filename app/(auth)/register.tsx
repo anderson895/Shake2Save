@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "@/config/firebase";
+import { createUserProfile } from "@/services/emergencyService";
 import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -40,6 +41,11 @@ export default function RegisterScreen() {
     try {
       const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
       await updateProfile(cred.user, { displayName: name.trim() });
+      await createUserProfile(cred.user.uid, {
+        email: email.trim(),
+        displayName: name.trim(),
+        role: "user",
+      });
       router.replace("/(tabs)");
     } catch (error: any) {
       let msg = "Registration failed";

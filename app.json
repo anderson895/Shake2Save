@@ -26,7 +26,9 @@
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
-        "VIBRATE"
+        "VIBRATE",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
       "package": "com.shake2save.app"
     },
@@ -58,6 +60,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a2ee1c58-4ba4-4ba6-8520-3d4bc1fbe7f2"
+      }
+    },
+    "owner": "padillajoshuaanderson.pdm"
   }
 }

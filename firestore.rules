@@ -5,6 +5,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // User profiles - users can read/write their own profile
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId;
+    }
+
     // Emergency Contacts - only the owner can read/write
     match /emergencyContacts/{contactId} {
       allow read, write: if request.auth != null
@@ -13,7 +20,9 @@ service cloud.firestore {
         && request.auth.uid == request.resource.data.userId;
     }
 
-    // Emergency Alerts - owner can create/read, anyone authenticated can read pending (for responders)
+    // Emergency Alerts
+    // - Users can create their own alerts and read their own
+    // - Responders (any authenticated user with role=responder) can read all and update
     match /emergencyAlerts/{alertId} {
       allow create: if request.auth != null
         && request.auth.uid == request.resource.data.userId;

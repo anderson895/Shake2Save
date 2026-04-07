@@ -11,7 +11,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/config/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "@/config/firebase";
 import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -28,8 +29,15 @@ export default function LoginScreen() {
     }
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
-      router.replace("/(tabs)");
+      const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
+      // Check role and route accordingly
+      const userDoc = await getDoc(doc(db, "users", cred.user.uid));
+      const role = userDoc.exists() ? userDoc.data().role : "user";
+      if (role === "responder") {
+        router.replace("/(responder)");
+      } else {
+        router.replace("/(tabs)");
+      }
     } catch (error: any) {
       let msg = "Login failed";
       if (error.code === "auth/user-not-found") msg = "No account found with this email";
@@ -112,13 +120,13 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Responder login */}
+        {/* Responder portal */}
         <TouchableOpacity
           style={styles.responderLink}
-          onPress={() => router.push("/(responder)")}
+          onPress={() => router.push("/(auth)/responder-login")}
         >
           <MaterialIcons name="local-hospital" size={16} color="#c0392b" />
-          <Text style={styles.responderText}> Emergency Responder Portal</Text>
+          <Text style={styles.responderText}> Emergency Responder? Sign in here</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

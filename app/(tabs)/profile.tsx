@@ -88,22 +88,12 @@ export default function ProfileScreen() {
             <View style={styles.infoContent}>
               <Text style={styles.infoTitle}>Response Team</Text>
               <Text style={styles.infoDesc}>
-                Emergency responders can acknowledge and track your alert in real time.
+                Emergency responders receive your alerts in real-time with alarm notifications.
               </Text>
             </View>
           </View>
         </View>
       </View>
-
-      {/* Responder portal link */}
-      <TouchableOpacity
-        style={styles.responderBtn}
-        onPress={() => router.push("/(responder)")}
-      >
-        <MaterialIcons name="local-hospital" size={20} color="#c0392b" />
-        <Text style={styles.responderBtnText}>Emergency Responder Portal</Text>
-        <MaterialIcons name="chevron-right" size={20} color="#c0392b" />
-      </TouchableOpacity>
 
       {/* Sign out */}
       <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
@@ -155,20 +145,6 @@ const styles = StyleSheet.create({
   infoTitle: { fontSize: 14, fontWeight: "700", color: "#333" },
   infoDesc: { fontSize: 13, color: "#888", marginTop: 2, lineHeight: 18 },
   divider: { height: 1, backgroundColor: "#f0f0f0", marginVertical: 4 },
-  responderBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 20,
-    elevation: 2,
-    gap: 8,
-    borderWidth: 1,
-    borderColor: "#f5d5d5",
-  },
-  responderBtnText: { fontSize: 14, fontWeight: "600", color: "#c0392b", flex: 1 },
   signOutBtn: {
     flexDirection: "row",
     alignItems: "center",

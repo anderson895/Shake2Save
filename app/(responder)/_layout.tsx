@@ -11,7 +11,10 @@ export default function ResponderLayout() {
     >
       <Stack.Screen
         name="index"
-        options={{ title: "Emergency Response Team" }}
+        options={{
+          title: "Emergency Response Portal",
+          headerBackVisible: false,
+        }}
       />
     </Stack>
   );

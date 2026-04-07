@@ -3,7 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 
 export default function Index() {
-  const { user, loading } = useAuth();
+  const { user, role, loading } = useAuth();
 
   if (loading) {
     return (
@@ -14,6 +14,9 @@ export default function Index() {
   }
 
   if (user) {
+    if (role === "responder") {
+      return <Redirect href="/(responder)" />;
+    }
     return <Redirect href="/(tabs)" />;
   }
 
