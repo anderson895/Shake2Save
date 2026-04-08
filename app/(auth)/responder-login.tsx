@@ -29,7 +29,7 @@ export default function ResponderLoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
 
   // Simple team code for responder verification
-  const RESPONDER_CODE = "RESCUE2024";
+  const RESPONDER_CODE = "SHAKE2SAVE";
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
