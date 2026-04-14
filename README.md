@@ -1,10 +1,10 @@
-# SHAKE2SAVE 🚨
+# SHAKE2SAVE 
 
 Emergency alert app — shake your phone to instantly send your GPS location to an emergency response team.
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 - **Node.js** (v18 or higher)
 - **Expo Go** app installed on your Android/iOS phone
@@ -12,7 +12,7 @@ Emergency alert app — shake your phone to instantly send your GPS location to 
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Install Dependencies
 
@@ -39,7 +39,7 @@ Scan the QR code with **Expo Go** (Android) or the Camera app (iOS).
 
 ---
 
-## 🔥 Firebase Setup (REQUIRED — Do This First!)
+## Firebase Setup (REQUIRED — Do This First!)
 
 The app uses Firebase for authentication and database. The Firebase project is already configured in the code, but you need to set up **three things** in the Firebase Console:
 
@@ -99,11 +99,11 @@ Go to **Firestore Database** → **Indexes** tab → **Add Index**:
 | `emergencyAlerts` | `userId` (Ascending) | `createdAt` (Descending) |
 | `emergencyAlerts` | `status` (Ascending) | `createdAt` (Descending) |
 
-> ⏳ Indexes take **2-5 minutes** to build. Wait until the status shows **Enabled**.
+> Indexes take **2-5 minutes** to build. Wait until the status shows **Enabled**.
 
 ---
 
-## 👤 How to Create Accounts
+## How to Create Accounts
 
 ### For Regular Users (people who need help)
 
@@ -122,14 +122,14 @@ Go to **Firestore Database** → **Indexes** tab → **Add Index**:
 5. Tap **Create Responder Account**
 6. You're now logged in as a responder
 
-> 🔑 **To change the team access code:** Edit `app/(auth)/responder-login.tsx` and change:
+> **To change the team access code:** Edit `app/(auth)/responder-login.tsx` and change:
 > ```ts
 > const RESPONDER_CODE = "SHAKE2SAVE";
 > ```
 
 ---
 
-## 📱 How to Use — Regular User
+## How to Use — Regular User
 
 ### Sending an Emergency Alert
 
@@ -161,7 +161,7 @@ You **don't need to refresh** or go to another screen — everything updates aut
 
 ---
 
-## 🏥 How to Use — Emergency Responder
+## How to Use — Emergency Responder
 
 ### Receiving Alerts
 
@@ -185,7 +185,8 @@ You **don't need to refresh** or go to another screen — everything updates aut
 ### Alert Card Information
 
 Each alert card shows:
-- 🔴 **EMERGENCY** or 🔵 **ACKNOWLEDGED** badge
+-  **EMERGENCY** or
+- **ACKNOWLEDGED** badge
 - User's **email/name**
 - **GPS location** (tap to open in Google Maps)
 - **Emergency contacts** that were listed
@@ -200,7 +201,7 @@ Each alert card shows:
 
 ---
 
-## 🔄 Full Emergency Flow (Step by Step)
+## Full Emergency Flow (Step by Step)
 
 ```
 USER                              RESPONDER
@@ -226,7 +227,7 @@ All status changes happen **instantly** — both user and responder see updates 
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 app/
@@ -263,7 +264,7 @@ firestore.indexes.json       → Composite indexes (deploy via Firebase CLI)
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 | Problem | Solution |
 |---|---|
@@ -278,7 +279,7 @@ firestore.indexes.json       → Composite indexes (deploy via Firebase CLI)
 
 ---
 
-## 📝 Notes
+## Notes
 
 - The app uses **Expo Go** for development — no native build required
 - Emergency alerts are stored in **Firebase Firestore**
